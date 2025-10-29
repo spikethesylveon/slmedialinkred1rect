@@ -5,93 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Two Button Site</title>
   <style>
+    :root {
+      /* You can also paste full URLs here if you really want */
+      --media-image: url("./assets/media.jpg");
+      --tv-image: url("./assets/tv.jpg");
+    }
+
+    html, body {
+      height: 100%;
+    }
     body {
       margin: 0;
       height: 100vh;
       background-color: #f8f8f8;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       overflow: hidden;
     }
 
     .btn {
       position: absolute;
-      width: 20vw;             /* Square button width */
-      aspect-ratio: 1/1;       /* Keeps it square */
+      width: 22vw;            /* square and decently large */
+      min-width: 220px;       /* prevents tiny buttons on phones */
+      aspect-ratio: 1 / 1;
       border: none;
+      cursor: pointer;
+      border-radius: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,.15);
+      transition: box-shadow .2s ease;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      cursor: pointer;
-      border-radius: 16px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-      transition: box-shadow 0.2s ease;
+      background-color: #d6d6d6; /* fallback color if image fails */
     }
+    .btn:hover { box-shadow: 0 8px 20px rgba(0,0,0,.25); }
 
-    /* No scaling or movement on hover */
-    .btn:hover {
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    }
+    /* Positions */
+    .media { left: 25%; top: 50%; transform: translate(-50%, -50%); }
+    .tv    { left: 75%; top: 50%; transform: translate(-50%, -50%); }
 
     .label {
       position: absolute;
-      bottom: 8px;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
       color: white;
-      font-size: 1.5em;
-      font-weight: bold;
-      text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-shadow: 0 0 5px rgba(0,0,0,.7);
       pointer-events: none;
     }
 
-    /* Button positions */
-    .media {
-      left: 25%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
+    /* Use CSS variables for images */
+    #mediaButton { background-image: var(--media-image); }
+    #tvButton    { background-image: var(--tv-image); }
 
-    .tv {
-      left: 75%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+    /* Optional: show a subtle overlay to keep text readable */
+    .btn::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.35) 100%);
+      border-radius: inherit;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <!-- MEDIA BUTTON -->
   <button class="btn media" id="mediaButton">
     <span class="label">Media</span>
   </button>
 
-  <!-- TV BUTTON -->
   <button class="btn tv" id="tvButton">
     <span class="label">TV</span>
   </button>
 
   <script>
     // ====== CONFIGURATION ======
-    // ✅ Change these to set button destinations:
+    // Links for each button:
     const mediaLink = "https://spikethesylveon.github.io/slslideshowadsd0w/";
-    const tvLink = "https://www.neurolab-inc.com/mediaplayer/";
+    const tvLink    = "https://www.neurolab-inc.com/mediaplayer/";
 
-    // ✅ Change these to set custom background images:
-    const mediaImage = "https://cdn.discordapp.com/attachments/1412877354283565076/1414770414785396856/IMG_3262.png";
-    const tvImage = "https://cdn.discordapp.com/attachments/1412877354283565076/1414770414785396856/IMG_3262.png";
+    // If you prefer to use FULL URLs for images instead of /assets,
+    // set them here and we’ll override the CSS variables at runtime.
+    // Example (reliable): raw.githubusercontent.com
+    // const mediaImageURL = "https://raw.githubusercontent.com/<user>/<repo>/main/assets/media.jpg";
+    // const tvImageURL    = "https://raw.githubusercontent.com/<user>/<repo>/main/assets/tv.jpg";
+    const mediaImageURL = null; // set to string URL to override
+    const tvImageURL = null;    // set to string URL to override
 
-    // ====== APPLY SETTINGS ======
-    document.getElementById("mediaButton").style.backgroundImage = `url('${mediaImage}')`;
-    document.getElementById("tvButton").style.backgroundImage = `url('${tvImage}')`;
+    // ====== APPLY LINKS ======
+    document.getElementById("mediaButton").onclick = () => location.href = mediaLink;
+    document.getElementById("tvButton").onclick    = () => location.href = tvLink;
 
-    document.getElementById("mediaButton").onclick = () => {
-      window.location.href = mediaLink;
-    };
-    document.getElementById("tvButton").onclick = () => {
-      window.location.href = tvLink;
-    };
+    // ====== (Optional) Override images via JS ======
+    function setBG(el, url) {
+      // Preload to avoid flashing if a URL is bad
+      const img = new Image();
+      img.onload = () => el.style.backgroundImage = `url('${url}')`;
+      img.onerror = () => {
+        // If it fails, keep the fallback color and add a subtle pattern
+        el.style.backgroundImage =
+          "linear-gradient(135deg, rgba(255,255,255,.6) 25%, rgba(0,0,0,.05) 25%, rgba(0,0,0,.05) 50%, rgba(255,255,255,.6) 50%, rgba(255,255,255,.6) 75%, rgba(0,0,0,.05) 75%, rgba(0,0,0,.05) 100%)";
+        el.style.backgroundSize = "28px 28px";
+        console.warn('Image failed to load:', url);
+      };
+      img.src = url;
+    }
+
+    if (mediaImageURL) setBG(document.getElementById("mediaButton"), mediaImageURL);
+    if (tvImageURL)    setBG(document.getElementById("tvButton"), tvImageURL);
   </script>
 </body>
 </html>
