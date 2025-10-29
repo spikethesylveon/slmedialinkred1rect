@@ -6,14 +6,12 @@
   <title>Two Button Site</title>
   <style>
     :root {
-      /* You can also paste full URLs here if you really want */
+      /* You can still swap these to full URLs if you prefer */
       --media-image: url("./assets/media.jpg");
       --tv-image: url("./assets/tv.jpg");
     }
 
-    html, body {
-      height: 100%;
-    }
+    html, body { height: 100%; }
     body {
       margin: 0;
       height: 100vh;
@@ -35,11 +33,11 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-color: #d6d6d6; /* fallback color if image fails */
+      background-color: #d6d6d6; /* fallback if image fails */
     }
     .btn:hover { box-shadow: 0 8px 20px rgba(0,0,0,.25); }
 
-    /* Positions */
+    /* Positions (¼ and ¾ horizontally, centered vertically) */
     .media { left: 25%; top: 50%; transform: translate(-50%, -50%); }
     .tv    { left: 75%; top: 50%; transform: translate(-50%, -50%); }
 
@@ -55,11 +53,11 @@
       pointer-events: none;
     }
 
-    /* Use CSS variables for images */
+    /* Button images via CSS variables (still overridable in JS) */
     #mediaButton { background-image: var(--media-image); }
     #tvButton    { background-image: var(--tv-image); }
 
-    /* Optional: show a subtle overlay to keep text readable */
+    /* Subtle overlay for label readability */
     .btn::after {
       content: "";
       position: absolute; inset: 0;
@@ -67,52 +65,204 @@
       border-radius: inherit;
       pointer-events: none;
     }
+
+    /* ===== Keypad Modal ===== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: none;               /* toggled with .active */
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+
+    .keypad {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      width: clamp(280px, 40vw, 360px);
+      padding: 20px;
+    }
+    .kp-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      text-align: center;
+    }
+    .kp-display {
+      height: 44px;
+      border-radius: 10px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      letter-spacing: .35em;
+      margin-bottom: 14px;
+      user-select: none;
+    }
+    .kp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .kp-btn {
+      height: 64px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: #f5f5f7;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+      cursor: pointer;
+      transition: transform .05s ease, box-shadow .15s ease;
+    }
+    .kp-btn:active { transform: scale(.98); }
+    .kp-foot {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .kp-small {
+      height: 44px;
+      font-size: .95rem;
+      background: #ececec;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0);
+      border: 0;
+    }
   </style>
 </head>
 <body>
-  <button class="btn media" id="mediaButton">
+  <!-- Media Button -->
+  <button class="btn media" id="mediaButton" aria-haspopup="dialog" aria-controls="keypadModal">
     <span class="label">Media</span>
   </button>
 
+  <!-- TV Button -->
   <button class="btn tv" id="tvButton">
     <span class="label">TV</span>
   </button>
 
+  <!-- Keypad Modal -->
+  <div class="modal" id="keypadModal" role="dialog" aria-modal="true" aria-labelledby="kpTitle">
+    <div class="keypad">
+      <h2 id="kpTitle" class="kp-title">Enter Code</h2>
+      <div id="kpDisplay" class="kp-display" aria-live="polite" aria-atomic="true">•••</div>
+
+      <div class="kp-grid" aria-label="Numeric keypad">
+        <!-- Row 1 -->
+        <button class="kp-btn" data-digit="1">1</button>
+        <button class="kp-btn" data-digit="2">2</button>
+        <button class="kp-btn" data-digit="3">3</button>
+        <!-- Row 2 -->
+        <button class="kp-btn" data-digit="4">4</button>
+        <button class="kp-btn" data-digit="5">5</button>
+        <button class="kp-btn" data-digit="6">6</button>
+        <!-- Row 3 -->
+        <button class="kp-btn" data-digit="7">7</button>
+        <button class="kp-btn" data-digit="8">8</button>
+        <button class="kp-btn" data-digit="9">9</button>
+      </div>
+
+      <div class="kp-foot">
+        <span class="sr-only">Spacer</span>
+        <button class="kp-btn" data-digit="0">0</button>
+        <button class="kp-btn kp-small" id="kpClose" title="Cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ====== CONFIGURATION ======
-    // Links for each button:
     const mediaLink = "https://spikethesylveon.github.io/slslideshowadsd0w/";
     const tvLink    = "https://www.neurolab-inc.com/mediaplayer/";
 
-    // If you prefer to use FULL URLs for images instead of /assets,
-    // set them here and we’ll override the CSS variables at runtime.
-    // Example (reliable): raw.githubusercontent.com
-    // const mediaImageURL = "https://raw.githubusercontent.com/<user>/<repo>/main/assets/media.jpg";
-    // const tvImageURL    = "https://raw.githubusercontent.com/<user>/<repo>/main/assets/tv.jpg";
-    const mediaImageURL = null; // set to string URL to override
-    const tvImageURL = null;    // set to string URL to override
+    // Optional: override images with full URLs (otherwise CSS vars are used)
+    const mediaImageURL = null; // e.g. "https://raw.githubusercontent.com/<user>/<repo>/main/assets/media.jpg"
+    const tvImageURL    = null; // e.g. "https://raw.githubusercontent.com/<user>/<repo>/main/assets/tv.jpg"
 
-    // ====== APPLY LINKS ======
-    document.getElementById("mediaButton").onclick = () => location.href = mediaLink;
-    document.getElementById("tvButton").onclick    = () => location.href = tvLink;
+    // ====== APPLY LINKS FOR THE TWO MAIN BUTTONS ======
+    const mediaBtn = document.getElementById("mediaButton");
+    const tvBtn    = document.getElementById("tvButton");
 
-    // ====== (Optional) Override images via JS ======
+    tvBtn.onclick = () => location.href = tvLink;
+
+    // If you set full image URLs above, apply them:
     function setBG(el, url) {
-      // Preload to avoid flashing if a URL is bad
       const img = new Image();
-      img.onload = () => el.style.backgroundImage = `url('${url}')`;
-      img.onerror = () => {
-        // If it fails, keep the fallback color and add a subtle pattern
-        el.style.backgroundImage =
-          "linear-gradient(135deg, rgba(255,255,255,.6) 25%, rgba(0,0,0,.05) 25%, rgba(0,0,0,.05) 50%, rgba(255,255,255,.6) 50%, rgba(255,255,255,.6) 75%, rgba(0,0,0,.05) 75%, rgba(0,0,0,.05) 100%)";
-        el.style.backgroundSize = "28px 28px";
-        console.warn('Image failed to load:', url);
-      };
+      img.onload  = () => el.style.backgroundImage = `url('${url}')`;
+      img.onerror = () => console.warn("Image failed:", url);
       img.src = url;
     }
+    if (mediaImageURL) setBG(mediaBtn, mediaImageURL);
+    if (tvImageURL)    setBG(tvBtn, tvImageURL);
 
-    if (mediaImageURL) setBG(document.getElementById("mediaButton"), mediaImageURL);
-    if (tvImageURL)    setBG(document.getElementById("tvButton"), tvImageURL);
+    // ====== KEYPAD LOGIC ======
+    const PASSCODE = "537";
+    let entered = "";
+
+    const modal   = document.getElementById("keypadModal");
+    const display = document.getElementById("kpDisplay");
+    const close   = document.getElementById("kpClose");
+
+    function openModal() {
+      entered = "";
+      display.textContent = "•••";
+      modal.classList.add("active");
+    }
+    function closeModal() {
+      modal.classList.remove("active");
+    }
+
+    // Open keypad instead of navigating when Media is clicked
+    mediaBtn.onclick = () => openModal();
+
+    // Close button just hides the keypad (no navigation)
+    close.onclick = () => closeModal();
+
+    function handleDigit(d) {
+      // Append next digit
+      const next = entered + d;
+
+      // If the sequence so far doesn't match the prefix of PASSCODE, redirect to TV immediately
+      if (!PASSCODE.startsWith(next)) {
+        location.href = tvLink; // wrong -> go to TV
+        return;
+      }
+
+      // Sequence still valid so far
+      entered = next;
+
+      // Update masked display (e.g., "•  •  •" with filled count)
+      display.textContent = "•••".split("").map((dot, i) => i < entered.length ? "•" : "•").join("");
+
+      // If full code matched, go to Media
+      if (entered.length === PASSCODE.length) {
+        closeModal();
+        location.href = mediaLink;
+      }
+    }
+
+    // Wire up keypad buttons
+    document.querySelectorAll('.kp-btn[data-digit]').forEach(btn => {
+      btn.addEventListener('click', () => handleDigit(btn.getAttribute('data-digit')));
+    });
+
+    // Optional: allow number keys on keyboard while modal is open
+    document.addEventListener('keydown', (e) => {
+      if (!modal.classList.contains('active')) return;
+      if (e.key >= '0' && e.key <= '9') handleDigit(e.key);
+      if (e.key === 'Escape') closeModal();
+    });
   </script>
 </body>
 </html>
