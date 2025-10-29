@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Two Button Site</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #f8f8f8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: sans-serif;
+    }
+
+    .button-container {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      position: relative;
+      width: 20vw;      /* Square button width */
+      aspect-ratio: 1/1; /* Makes it square */
+      border: none;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      border-radius: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .label {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+      pointer-events: none;
+    }
+
+    /* Adjust horizontal positions */
+    .media {
+      position: absolute;
+      left: 25%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .tv {
+      position: absolute;
+      left: 75%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <!-- MEDIA BUTTON -->
+  <button
+    class="btn media"
+    id="mediaButton"
+    style="background-image: url('https://cdn.discordapp.com/attachments/1412877354283565076/1414770414785396856/IMG_3262.png?ex=69035ae0&is=69020960&hm=b04920b1c2b063b837cf0be42f00ef97af9a066972c3da160319ecffd44ac6d8&');"
+  >
+    <span class="label">Media</span>
+  </button>
+
+  <!-- TV BUTTON -->
+  <button
+    class="btn tv"
+    id="tvButton"
+    style="background-image: url('https://cdn.discordapp.com/attachments/1412877354283565076/1414770414785396856/IMG_3262.png?ex=69035ae0&is=69020960&hm=b04920b1c2b063b837cf0be42f00ef97af9a066972c3da160319ecffd44ac6d8&');"
+  >
+    <span class="label">TV</span>
+  </button>
+
+  <script>
+    // ====== CONFIGURATION ======
+    // Change these links to set button destinations:
+    const mediaLink = "https://spikethesylveon.github.io/slslideshowadsd0w/";
+    const tvLink = "https://www.neurolab-inc.com/mediaplayer/";
+
+    // Add click handlers:
+    document.getElementById("mediaButton").onclick = () => {
+      window.location.href = mediaLink;
+    };
+    document.getElementById("tvButton").onclick = () => {
+      window.location.href = tvLink;
+    };
+  </script>
+</body>
+</html>
