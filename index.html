@@ -2,37 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Two Button Site</title>
   <style>
-    /* ===== Global reset & viewport fill ===== */
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: #0e0e0e;       /* page bg behind UI */
-      color: #eee;
-    }
-    body {
-      /* Fill whatever rectangle SL gives the browser texture */
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    }
-
-    /* Stage that always matches the prim face */
-    #app {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;       /* centers if you ever use non-absolute children */
-      padding: min(3vmin, 24px); /* gentle breathing room that scales with size */
-      box-sizing: border-box;
-      background: #0e0e0e;       /* same as body to avoid edge seams */
-    }
-
     :root {
       /* Button images (can be overridden by JS vars below) */
       --media-image: url("./assets/media.jpg");
@@ -42,12 +14,20 @@
       --splash-image: url("./assets/splash.jpg");
     }
 
-    /* ===== Buttons (stay square by design) ===== */
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #f8f8f8;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      overflow: hidden;
+    }
+
     .btn {
       position: absolute;
-      width: 22vw;            /* responsive size */
+      width: 22vw;            /* square and decently large */
       min-width: 220px;       /* prevents tiny buttons on phones */
-      aspect-ratio: 1 / 1;    /* buttons intentionally square */
+      aspect-ratio: 1 / 1;
       border: none;
       cursor: pointer;
       border-radius: 16px;
@@ -108,7 +88,6 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       width: clamp(280px, 40vw, 360px);
       padding: 20px;
-      color: #111;
     }
     .kp-title {
       font-size: 1.1rem;
@@ -184,20 +163,17 @@
   </style>
 </head>
 <body>
-  <!-- Stage that fills the prim’s rectangle -->
-  <div id="app">
-    <!-- Media Button -->
-    <button class="btn media" id="mediaButton" aria-haspopup="dialog" aria-controls="keypadModal">
-      <span class="label">Media</span>
-    </button>
+  <!-- Media Button -->
+  <button class="btn media" id="mediaButton" aria-haspopup="dialog" aria-controls="keypadModal">
+    <span class="label">Media</span>
+  </button>
 
-    <!-- TV Button -->
-    <button class="btn tv" id="tvButton">
-      <span class="label">TV</span>
-    </button>
-  </div>
+  <!-- TV Button -->
+  <button class="btn tv" id="tvButton">
+    <span class="label">TV</span>
+  </button>
 
-  <!-- Keypad Modal (overlay) -->
+  <!-- Keypad Modal -->
   <div class="modal" id="keypadModal" role="dialog" aria-modal="true" aria-labelledby="kpTitle">
     <div class="keypad">
       <h2 id="kpTitle" class="kp-title">Enter Code</h2>
@@ -228,7 +204,7 @@
 
   <!-- Splash overlay -->
   <div class="splash" id="splash" role="button" aria-label="Enter site">
-    <div class="splash-hint">Click to enter</div>
+    <div class="splash-hint">Tap or click to enter</div>
   </div>
 
   <script>
@@ -237,9 +213,9 @@
     const tvLink    = "https://www.neurolab-inc.com/mediaplayer/";
 
     // Optional: override images with full URLs (otherwise CSS vars are used)
-    const mediaImageURL  = null;
-    const tvImageURL     = null;
-    const splashImageURL = null;
+    const mediaImageURL  = null; // e.g. "https://raw.githubusercontent.com/<user>/<repo>/main/assets/media.jpg"
+    const tvImageURL     = null; // e.g. "https://raw.githubusercontent.com/<user>/<repo>/main/assets/tv.jpg"
+    const splashImageURL = null; // e.g. "https://raw.githubusercontent.com/<user>/<repo>/main/assets/splash.jpg"
 
     // Inactivity timeout (ms)
     const IDLE_MS = 15000;
@@ -250,6 +226,7 @@
 
     tvBtn.onclick = () => location.href = tvLink;
 
+    // If you set full image URLs above, apply them:
     function setBG(el, url) {
       const img = new Image();
       img.onload  = () => el.style.backgroundImage = `url('${url}')`;
@@ -292,6 +269,8 @@
       }
 
       entered = next;
+
+      // (We keep display masked as •••; you can show digits if preferred)
       display.textContent = "•••";
 
       // If full code matched, go to Media
@@ -324,8 +303,8 @@
     const activityEvents = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'];
 
     function showSplash() {
-      // Hide keypad if open
-      modal.classList.remove('active');
+      // Hide keypad if open (optional; remove if you want splash behind modal)
+      closeModal();
       splash.classList.remove('hidden');
     }
 
@@ -336,6 +315,7 @@
 
     function resetIdleTimer() {
       clearTimeout(idleTimer);
+      // Only count inactivity while splash is hidden (i.e., user is in the site)
       if (splash.classList.contains('hidden')) {
         idleTimer = setTimeout(showSplash, IDLE_MS);
       }
@@ -350,6 +330,9 @@
         if (splash.classList.contains('hidden')) resetIdleTimer();
       }, { passive: true })
     );
+
+    // Optional: start with timer armed if you programmatically hide splash elsewhere
+    // resetIdleTimer();
   </script>
 </body>
 </html>
